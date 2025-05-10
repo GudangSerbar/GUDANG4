@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Form Gudang</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+  <h2>Input Barang Gudang</h2>
+  <input type="text" id="nama" placeholder="Nama Pengirim"><br><br>
+  <input type="text" id="barang" placeholder="Nama Barang"><br><br>
+  <input type="number" id="jumlah" placeholder="Jumlah"><br><br>
+  <input type="file" accept="image/*" capture="environment" id="foto"><br><br>
+  <button onclick="kirim()">Kirim</button>
+  <p id="status"></p>
+
+  <script>
+    async function kirim() {
+      const nama = document.getElementById("nama").value;
+      const barang = document.getElementById("barang").value;
+      const jumlah = document.getElementById("jumlah").value;
+      const foto = document.getElementById("foto").files[0];
+
+      if (!nama || !barang || !jumlah || !foto) {
+        alert("Lengkapi semua field!");
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onloadend = async function() {
+        const base64 = reader.result.split(",")[1];
+
+        const data = new URLSearchParams();
+        data.append("nama", nama);
+        data.append("barang", barang);
+        data.append("jumlah", jumlah);
+        data.append("image", base64);
+
+        document.getElementById("status").innerText = "Mengirim...";
+
+        const response = await fetch("https://script.google.com/macros/s/AKfycbzvBgibDGOEk5nrVnHJnsUMHO7sYtzRM96tTF84RfDtpz3YJZLVEzmyYZSXZyYw5bu0aw/exec", {
+          method: "POST",
+          body: data
+        });
+
+        const text = await response.text();
+        document.getElementById("status").innerText = text;
+      };
+      reader.readAsDataURL(foto);
+    }
+  </script>
+</body>
+</html>
